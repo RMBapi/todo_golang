@@ -28,3 +28,28 @@ func (u *TodoList) Save() error {
 	u.Id = task_id
 	return err
 }
+
+func (u *TodoList) ViewTask() ([]TodoList, error) {
+
+	rows, err := db.DB.Query("SELECT id, task, description, datetime FROM todoList")
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var tasks []TodoList
+
+	for rows.Next() {
+		var todo TodoList
+		err := rows.Scan(&todo.Id, &todo.Task, &todo.Description, &todo.Datetime)
+		if err != nil {
+			return nil, err
+		}
+
+		tasks = append(tasks, todo)
+	}
+
+	return tasks, nil
+}
