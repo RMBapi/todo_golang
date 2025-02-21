@@ -30,7 +30,8 @@ func createTable() {
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     task TEXT NOT NULL,
 	description TEXT NOT NULL,
-    datetime TEXT NOT NULL
+    datetime TEXT NOT NULL,
+	status TEXT NOT NULL
     )
 	`
 	_, err := DB.Exec(createTodoTable)

@@ -9,18 +9,19 @@ type TodoList struct {
 	Task        string `binding:"required"`
 	Description string `binding:"required"`
 	Datetime    string `binding:"required"`
+	Status      string `binding:"required"`
 }
 
 func (u *TodoList) Save() error {
-	query := `INSERT INTO todoList(task,description,datetime)
-              VALUES(?,?,?)`
+	query := `INSERT INTO todoList(task,description,datetime,status)
+              VALUES(?,?,?,?)`
 	stmt, err := db.DB.Prepare(query)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
 
-	result, err := stmt.Exec(u.Task, u.Description, u.Datetime)
+	result, err := stmt.Exec(u.Task, u.Description, u.Datetime, u.Status)
 	if err != nil {
 		return err
 	}
@@ -31,7 +32,7 @@ func (u *TodoList) Save() error {
 
 func (u *TodoList) ViewTask() ([]TodoList, error) {
 
-	rows, err := db.DB.Query("SELECT id, task, description, datetime FROM todoList")
+	rows, err := db.DB.Query("SELECT id, task, description, datetime ,status FROM todoList")
 
 	if err != nil {
 		return nil, err
@@ -43,7 +44,7 @@ func (u *TodoList) ViewTask() ([]TodoList, error) {
 
 	for rows.Next() {
 		var todo TodoList
-		err := rows.Scan(&todo.Id, &todo.Task, &todo.Description, &todo.Datetime)
+		err := rows.Scan(&todo.Id, &todo.Task, &todo.Description, &todo.Datetime, &todo.Status)
 		if err != nil {
 			return nil, err
 		}
@@ -52,4 +53,21 @@ func (u *TodoList) ViewTask() ([]TodoList, error) {
 	}
 
 	return tasks, nil
+}
+
+func (u *TodoList) Update() error {
+	query := `
+	UPDATE todoList
+	SET task = ?, description = ?, datetime = ?,status = ?
+	WHERE id = ?
+	`
+	stmt, err := db.DB.Prepare(query)
+
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(u.Task, u.Description, u.Datetime, u.Status, u.Id)
+
+	return err
 }
